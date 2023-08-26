@@ -16,7 +16,6 @@ import {
 import rehypeSlug from 'rehype-slug'
 import rehypeAutolinkHeadings from 'rehype-autolink-headings'
 import rehypeKatex from 'rehype-katex'
-import rehypeCitation from 'rehype-citation'
 import rehypePrismPlus from 'rehype-prism-plus'
 import rehypePresetMinify from 'rehype-preset-minify'
 import siteMetadata from './data/siteMetadata'
@@ -59,19 +58,6 @@ function createTagCount(allBlogs) {
     }
   })
   writeFileSync('./app/tag-data.json', JSON.stringify(tagCount))
-}
-
-function createSearchIndex(allBlogs) {
-  if (
-    siteMetadata?.search?.provider === 'kbar' &&
-    siteMetadata.search.kbarConfig.searchDocumentsPath
-  ) {
-    writeFileSync(
-      `public/${siteMetadata.search.kbarConfig.searchDocumentsPath}`,
-      JSON.stringify(allCoreContent(sortPosts(allBlogs)))
-    )
-    console.log('Local search index generated...')
-  }
 }
 
 export const Blog = defineDocumentType(() => ({
@@ -144,7 +130,6 @@ export default makeSource({
       rehypeSlug,
       rehypeAutolinkHeadings,
       rehypeKatex,
-      [rehypeCitation, { path: path.join(root, 'data') }],
       [rehypePrismPlus, { defaultLanguage: 'js', ignoreMissing: true }],
       rehypePresetMinify,
     ],
@@ -152,6 +137,5 @@ export default makeSource({
   onSuccess: async (importData) => {
     const { allBlogs } = await importData()
     createTagCount(allBlogs)
-    createSearchIndex(allBlogs)
   },
 })
